@@ -29,6 +29,9 @@ $payments = $provider->getModels();
             · <?= Html::encode($reward->status) ?>
             <?php if ($reward->ayda_project_id): ?> · Ayda project <?= Html::encode($reward->ayda_project_id) ?><?php endif; ?>
         </p>
+        <?php if ($reward->isOpen()): ?>
+            <div class="alert alert-warning">Add funds to the Ayda <?= Html::encode($reward->currency) ?> wallet before anyone can be paid. Review payment shows that balance. Authorise stays blocked until the balance is shown and covers the incentive, the fee, and VAT.</div>
+        <?php endif; ?>
         <p class="text-muted">Refresh copies people onto this list. Someone who joins later is added only when you refresh again. Rows already here keep their amount and tick.</p>
         <p><?= Html::a('Edit reward', Links::to($space, 'edit', ['id' => $reward->id]), ['class' => 'btn btn-default']) ?></p>
 

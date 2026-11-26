@@ -90,7 +90,7 @@ trait ManageTrait
                     $reward->created_at = $now;
                     $reward->updated_at = $now;
                     $reward->save(false);
-                    $this->view->success('Reward saved. Refresh the list to add people.');
+                    $this->view->success('Reward saved. Add funds to the Ayda ' . $reward->currency . ' wallet before anyone can be paid. Refresh the list to add people.');
                     return $this->redirect($this->route('view', ['id' => $reward->id]));
                 }
                 $this->view->error(implode(' ', $model->getErrorSummary(true)));

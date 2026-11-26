@@ -63,12 +63,9 @@ class AuthoriseService
      */
     public function authorise(Reward $reward): array
     {
-        $payments = $this->ready($reward);
-        $this->assertPayable($payments);
-        if (!$reward->ayda_project_id) {
-            $this->quote($reward);
-            $reward->refresh();
-        }
+        $quote = $this->quote($reward);
+        $this->assertFunded($quote);
+        $payments = $quote['payments'];
         $payloads = [];
         foreach ($payments as $payment) {
             $payloads[] = $this->payload($reward, $payment);
@@ -202,6 +199,23 @@ class AuthoriseService
         }
         if ($problems !== []) {
             throw new \RuntimeException(implode('; ', $problems));
+        }
+    }
+
+    /**
+     * Payment stays blocked until the Ayda wallet balance is shown and covers the quoted total.
+     *
+     * @param array{balance:?float,total:string,currency:string} $quote
+     */
+    private function assertFunded(array $quote): void
+    {
+        $currency = (string)$quote['currency'];
+        if ($quote['balance'] === null) {
+            throw new \RuntimeException('The Ayda ' . $currency . ' wallet balance is not shown. Add funds to that wallet in Ayda. Payment cannot be authorised until the balance is shown and covers the total.');
+        }
+        $balance = number_format((float)$quote['balance'], 2, '.', '');
+        if (Money::toCents($balance) < Money::toCents($quote['total'])) {
+            throw new \RuntimeException('The Ayda ' . $currency . ' wallet has ' . $balance . ', which is below the total of ' . $quote['total'] . '. Add funds in Ayda before authorising.');
         }
     }
 

@@ -17,7 +17,9 @@ use yii\helpers\Html;
 
 $this->title = 'Review payment';
 $balanceKnown = $quote['balance'] !== null;
-$short = $balanceKnown && Money::toCents($quote['balance']) < Money::toCents($quote['total']);
+$balanceText = $balanceKnown ? number_format((float)$quote['balance'], 2, '.', '') : null;
+$short = $balanceKnown && Money::toCents($balanceText) < Money::toCents($quote['total']);
+$blocked = !$balanceKnown || $short;
 ?>
 <div class="panel panel-default">
     <div class="panel-heading">Review payment for <?= Html::encode($reward->title) ?></div>
@@ -29,10 +31,12 @@ $short = $balanceKnown && Money::toCents($quote['balance']) < Money::toCents($qu
             <li>Fees <?= Html::encode($quote['currency'] . ' ' . $quote['fee']) ?></li>
             <li>VAT <?= Html::encode($quote['currency'] . ' ' . $quote['tax']) ?></li>
             <li>Total <?= Html::encode($quote['currency'] . ' ' . $quote['total']) ?></li>
-            <li>Wallet <?= $balanceKnown ? Html::encode($quote['currency'] . ' ' . number_format((float)$quote['balance'], 2, '.', '')) : 'not available' ?></li>
+            <li>Wallet <?= $balanceKnown ? Html::encode($quote['currency'] . ' ' . $balanceText) : 'not shown' ?></li>
         </ul>
-        <?php if ($short): ?>
-            <p class="text-danger">The wallet balance is below the total. Ayda will reject the payment until the wallet is topped up.</p>
+        <?php if (!$balanceKnown): ?>
+            <p class="text-danger">The Ayda wallet balance is not shown. Add funds to the <?= Html::encode($quote['currency']) ?> wallet in Ayda. Payment cannot be authorised until that balance is shown and covers the total.</p>
+        <?php elseif ($short): ?>
+            <p class="text-danger">The Ayda wallet has <?= Html::encode($quote['currency'] . ' ' . $balanceText) ?>, which is below the total of <?= Html::encode($quote['currency'] . ' ' . $quote['total']) ?>. Add funds in Ayda. Payment cannot be authorised until the balance covers the total.</p>
         <?php endif; ?>
         <table class="table">
             <thead><tr><th>Person</th><th>Email</th><th>Amount</th></tr></thead>
@@ -54,7 +58,7 @@ $short = $balanceKnown && Money::toCents($quote['balance']) < Money::toCents($qu
         ]) ?>
             <?= Html::submitButton('Authorise payment', [
                 'class' => 'btn btn-primary',
-                'disabled' => $short,
+                'disabled' => $blocked,
             ]) ?>
             <?= Html::a('Back', Links::to($space, 'view', ['id' => $reward->id]), ['class' => 'btn btn-link']) ?>
         <?= Html::endForm() ?>

@@ -22,7 +22,7 @@ $this->title = 'Ayda settings';
         <?= $this->render('@thiscovery-incentives/views/manage/_nav', ['space' => $space, 'active' => 'settings']) ?>
         <p class="text-muted">The password is stored encrypted. Leave it blank to keep the current password. Payment cannot be authorised until a username and password are saved.</p>
         <?php $form = ActiveForm::begin(); ?>
-            <?= $form->field($model, 'apiBase') ?>
+            <?= $form->field($model, 'apiBase')->hint('Production is https://technology.helloayda.com. Use the username and password issued for that service.') ?>
             <?= $form->field($model, 'username') ?>
             <?= $form->field($model, 'password')->passwordInput(['value' => '', 'autocomplete' => 'new-password'])->hint($stored ? 'A password is already stored.' : 'No password stored yet.') ?>
             <?= $form->field($model, 'clearPassword')->checkbox() ?>

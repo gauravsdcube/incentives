@@ -12,7 +12,7 @@ class Currencies
     public const CODES = [
         'AED', 'ALL', 'ANG', 'ARS', 'AUD', 'AZN', 'BAM', 'BBD', 'BGN', 'BHD', 'BOB', 'BRL', 'BSD', 'BYN', 'BZD',
         'CAD', 'CHF', 'CLP', 'CNY', 'COP', 'CUP', 'CVE', 'CZK', 'DKK', 'DOP', 'EGP', 'EUR', 'GBP', 'GEL', 'GHS',
-        'GIP', 'GTQ', 'HKD', 'HRK', 'HUF', 'IDR', 'ILS', 'INR', 'IQD', 'IRR', 'ISK', 'JOD', 'JPY', 'KES', 'KRW',
+        'GIP', 'GTQ', 'HKD', 'HRK', 'HUF', 'IDR', 'ILS', 'INR', 'IQD', 'IRR', 'ISK', 'JOD', 'JPY', 'KES', 'KHR', 'KRW',
         'KWD', 'KZT', 'LBP', 'LKR', 'LYD', 'MAD', 'MDL', 'MKD', 'MRU', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'NGN',
         'NOK', 'NPR', 'NZD', 'OMR', 'PEN', 'PHP', 'PKR', 'PLN', 'QAR', 'RON', 'RSD', 'SAR', 'SCR', 'SDG', 'SEK',
         'SGD', 'SSP', 'STN', 'THB', 'TND', 'TRY', 'TWD', 'UAH', 'UGX', 'USD', 'VED', 'VND', 'XCD', 'XOF', 'XPF', 'ZAR',

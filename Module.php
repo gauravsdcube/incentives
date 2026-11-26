@@ -25,7 +25,7 @@ class Module extends ContentContainerModule
     public const SETTING_TOKEN = 'api_token';
     public const SETTING_TOKEN_EXPIRY = 'api_token_expiry';
 
-    public const DEFAULT_API_BASE = 'https://technology-demo.helloayda.com';
+    public const DEFAULT_API_BASE = 'https://technology.helloayda.com';
 
     public $resourcesPath = 'resources';
     public $icon = 'fa-gift';

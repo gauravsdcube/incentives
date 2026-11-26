@@ -30,10 +30,13 @@ check('mary', NameCheck::valid('Mary'));
 check('mary ann', NameCheck::valid('Mary Ann'));
 check("o'neil", NameCheck::valid("O'Neil"));
 check('hyphen', NameCheck::valid('Anne-Marie'));
+check('accent', NameCheck::valid('José'));
+check('curly', NameCheck::valid('O’Neil'));
 check('initial', !NameCheck::valid('B.'));
 check('digit', !NameCheck::valid('Mary2'));
 check('short', !NameCheck::valid('A'));
 check('punct first', !NameCheck::valid("'Anne"));
+check('outside set', !NameCheck::valid('Łukasz'));
 
 $parts = Money::split(100, [1, 1, 1]);
 check('split count', count($parts) === 3);

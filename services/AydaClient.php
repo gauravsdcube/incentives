@@ -174,7 +174,9 @@ class AydaClient
      */
     public function incentive(string $id): array
     {
-        return $this->send('GET', '/Incentives/' . rawurlencode($id));
+        return $this->send('GET', '/Incentives/' . rawurlencode($id), null, [
+            'fields' => ['TrustScore'],
+        ]);
     }
 
     public function approve(string $id, string $reason): void
@@ -238,7 +240,7 @@ class AydaClient
     }
 
     /**
-     * @param array<string, scalar|null> $query
+     * @param array<string, scalar|array<int, scalar|null>|null> $query
      * @param array<string, mixed>|array<int, array<string, mixed>>|null $body
      * @return array<string, mixed>|array<int, mixed>
      */
@@ -263,26 +265,34 @@ class AydaClient
 
     /**
      * @param array<int, string> $headers
-     * @param array<string, scalar|null> $query
+     * @param array<string, scalar|array<int, scalar|null>|null> $query
      * @param array<string, mixed>|array<int, mixed>|null $body
      * @return array<string, mixed>|array<int, mixed>
      */
-    private function raw(string $method, string $path, $body, array $headers, array $query = []): array
+    private function raw(string $method, string $path, $body, array $headers, array $query = [], int $attempt = 0): array
     {
         $url = $this->module->getApiBase() . $path;
-        if ($query !== []) {
-            $url .= (strpos($url, '?') === false ? '?' : '&') . http_build_query($query);
+        $queryString = $this->queryString($query);
+        if ($queryString !== '') {
+            $url .= (strpos($url, '?') === false ? '?' : '&') . $queryString;
         }
         $ch = curl_init($url);
         if ($ch === false) {
             throw new AydaException('Could not start the Ayda request.');
         }
         $payload = $body === null ? null : json_encode($body, JSON_UNESCAPED_UNICODE);
+        $retryAfter = null;
         curl_setopt_array($ch, [
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 45,
             CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_HEADERFUNCTION => static function ($curl, string $header) use (&$retryAfter): int {
+                if (stripos($header, 'Retry-After:') === 0) {
+                    $retryAfter = trim(substr($header, 12));
+                }
+                return strlen($header);
+            },
         ]);
         if ($payload !== null) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
@@ -294,6 +304,16 @@ class AydaClient
         if ($raw === false) {
             Yii::warning('Ayda request failed: ' . $method . ' ' . $path . ' ' . $error, 'thiscovery-incentives');
             throw new AydaException('Ayda could not be reached.');
+        }
+        if ($status === 429) {
+            $wait = $this->retryDelay($retryAfter);
+            if ($attempt < 1 && $wait <= 5) {
+                if ($wait > 0) {
+                    sleep($wait);
+                }
+                return $this->raw($method, $path, $body, $headers, $query, $attempt + 1);
+            }
+            throw new AydaException('Ayda is limiting requests. Wait ' . max(1, $wait) . ' seconds and try again.', 429);
         }
         if ($status === 204 || trim((string)$raw) === '') {
             if ($status >= 400) {
@@ -363,6 +383,38 @@ class AydaClient
             return 'Ayda rejected the request (' . $status . ').';
         }
         return 'Ayda rejected the request (' . $status . '): ' . mb_substr($detail, 0, 500);
+    }
+
+    /**
+     * @param array<string, scalar|array<int, scalar|null>|null> $query
+     */
+    private function queryString(array $query): string
+    {
+        $parts = [];
+        foreach ($query as $key => $value) {
+            foreach (is_array($value) ? $value : [$value] as $item) {
+                if ($item === null || $item === '') {
+                    continue;
+                }
+                $parts[] = rawurlencode((string)$key) . '=' . rawurlencode((string)$item);
+            }
+        }
+        return implode('&', $parts);
+    }
+
+    private function retryDelay(?string $header): int
+    {
+        if ($header === null || $header === '') {
+            return 1;
+        }
+        if (ctype_digit($header)) {
+            return (int)$header;
+        }
+        $time = strtotime($header);
+        if ($time === false) {
+            return 1;
+        }
+        return max(0, $time - time());
     }
 
     /**
