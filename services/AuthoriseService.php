@@ -168,6 +168,7 @@ class AuthoriseService
         if (!$reward->isOpen()) {
             throw new \RuntimeException('This reward is closed.');
         }
+        ResponseRemoval::sweep($reward);
         return Payment::find()
             ->where(['reward_id' => (int)$reward->id, 'excluded' => 0])
             ->andWhere(['status' => [Payment::STATUS_DRAFT, Payment::STATUS_FAILED]])

@@ -27,7 +27,7 @@ class m261119_140000_incentive_tables extends Migration
                 'first_name_field_id' => $this->integer()->null(),
                 'last_name_field_id' => $this->integer()->null(),
                 'opt_in_field_id' => $this->integer()->null(),
-                'opt_in_value' => $this->string(64)->null(),
+                'opt_in_value' => $this->string(2000)->null(),
                 'ayda_project_id' => $this->string(36)->null(),
                 'status' => $this->string(16)->notNull()->defaultValue('open'),
                 'created_by' => $this->integer()->null(),

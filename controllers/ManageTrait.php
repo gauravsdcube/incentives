@@ -109,6 +109,7 @@ trait ManageTrait
     {
         $this->guard();
         $reward = $this->findReward($id);
+        \humhub\modules\thiscoveryIncentives\services\ResponseRemoval::sweep($reward);
         $query = Payment::find()->where(['reward_id' => (int)$reward->id])->orderBy(['id' => SORT_ASC]);
         $provider = new ActiveDataProvider([
             'query' => $query,

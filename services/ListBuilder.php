@@ -48,6 +48,7 @@ class ListBuilder
         }
         $answerClass = \humhub\modules\thiscoveryForms\models\FormAnswer::class;
         $fieldClass = \humhub\modules\thiscoveryForms\models\FormAnswerField::class;
+        ResponseRemoval::sweep($reward);
 
         $existing = $this->existingKeys((int)$reward->id);
         $query = $answerClass::findParticipants()
@@ -233,10 +234,16 @@ class ListBuilder
         if (!$row) {
             return false;
         }
-        return self::isOptIn((string)$row->value, (string)$reward->opt_in_value);
+        return self::isOptIn((string)$row->value, (string)$reward->opt_in_value, self::choicePairs((int)$reward->opt_in_field_id));
     }
 
-    public static function isOptIn(string $stored, string $expected): bool
+    /**
+     * A stored answer is the choice code. The value entered on the reward matches that
+     * code, or the choice text for the same option.
+     *
+     * @param array<int, array{code?:string,label?:string}> $pairs
+     */
+    public static function isOptIn(string $stored, string $expected, array $pairs = []): bool
     {
         $candidates = [];
         $decoded = json_decode($stored, true);
@@ -249,20 +256,51 @@ class ListBuilder
         } else {
             $candidates[] = self::plain($stored);
         }
-        $expected = trim($expected);
-        foreach ($candidates as $candidate) {
-            $candidate = trim($candidate);
-            if ($candidate === '') {
+        $expectedKey = mb_strtolower(self::plain($expected));
+        $options = [];
+        foreach ($pairs as $pair) {
+            $code = mb_strtolower(trim((string)($pair['code'] ?? '')));
+            $label = mb_strtolower(self::plain((string)($pair['label'] ?? '')));
+            if ($code === '' && $label === '') {
                 continue;
             }
-            if ($expected !== '' && mb_strtolower($candidate) === mb_strtolower($expected)) {
+            $options[] = [$code, $label];
+        }
+        foreach ($candidates as $candidate) {
+            $candidateKey = mb_strtolower(self::plain($candidate));
+            if ($candidateKey === '') {
+                continue;
+            }
+            if ($expectedKey !== '' && $candidateKey === $expectedKey) {
                 return true;
             }
-            if (in_array(mb_strtolower($candidate), ['1', 'yes', 'y', 'true', 'on', 'opt in', 'opt-in', 'agree', 'i agree'], true)) {
+            foreach ($options as [$code, $label]) {
+                $storedIsOption = $candidateKey === $code || ($label !== '' && $candidateKey === $label);
+                $expectedIsOption = $expectedKey !== '' && ($expectedKey === $code || ($label !== '' && $expectedKey === $label));
+                if ($storedIsOption && $expectedIsOption) {
+                    return true;
+                }
+            }
+            if (in_array($candidateKey, ['1', 'yes', 'y', 'true', 'on', 'opt in', 'opt-in', 'agree', 'i agree'], true)) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * @return array<int, array{code:string,label:string}>
+     */
+    private static function choicePairs(int $fieldId): array
+    {
+        if ($fieldId < 1 || !class_exists(\humhub\modules\thiscoveryForms\models\FormField::class)) {
+            return [];
+        }
+        $field = \humhub\modules\thiscoveryForms\models\FormField::findOne($fieldId);
+        if (!$field || !method_exists($field, 'getChoicePairs')) {
+            return [];
+        }
+        return $field->getChoicePairs();
     }
 
     public static function plain(string $value): string

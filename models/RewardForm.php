@@ -53,7 +53,7 @@ class RewardForm extends Model
             [['currency'], 'in', 'range' => Currencies::CODES],
             [['default_amount'], 'number', 'min' => 0.01],
             [['form_id', 'space_id', 'group_id', 'email_field_id', 'first_name_field_id', 'last_name_field_id', 'opt_in_field_id'], 'integer'],
-            [['opt_in_value'], 'string', 'max' => 64],
+            [['opt_in_value'], 'string', 'max' => 2000],
             [['form_id'], 'required', 'when' => function (self $model) {
                 return $model->source === Reward::SOURCE_FORM;
             }, 'whenClient' => "function (attribute, value) {

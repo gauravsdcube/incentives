@@ -70,7 +70,7 @@ $survey = $model->source === Reward::SOURCE_FORM;
                     <?= $form->field($model, 'first_name_field_id')->dropDownList($model->fieldOptions((int)$model->form_id, $fieldTypes ? [FormField::TYPE_TEXT] : null), ['prompt' => 'First name question']) ?>
                     <?= $form->field($model, 'last_name_field_id')->dropDownList($model->fieldOptions((int)$model->form_id, $fieldTypes ? [FormField::TYPE_TEXT] : null), ['prompt' => 'Last name question']) ?>
                     <?= $form->field($model, 'opt_in_field_id')->dropDownList($model->fieldOptions((int)$model->form_id, $fieldTypes ? [FormField::TYPE_RADIO, FormField::TYPE_DROPDOWN, FormField::TYPE_CHECKBOX] : null), ['prompt' => 'Opt-in question']) ?>
-                    <?= $form->field($model, 'opt_in_value')->textInput()->hint('The answer that means yes, for example Yes.') ?>
+                    <?= $form->field($model, 'opt_in_value')->textarea(['rows' => 3, 'maxlength' => 2000])->hint('The choice code or the choice text. A response counts when the stored answer matches either.') ?>
                 <?php else: ?>
                     <p class="text-muted">Choose a form and continue to map its questions.</p>
                 <?php endif; ?>

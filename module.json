@@ -3,7 +3,7 @@
   "name": "Thiscovery Incentives",
   "description": "Pay survey participants and community members through Ayda. A manager authorises every payment, and each amount and status change is kept in a register.",
   "keywords": ["thiscovery", "incentives", "payments", "ayda", "survey"],
-  "version": "0.2.0",
+  "version": "0.2.1",
   "humhub": {
     "minVersion": "1.18"
   },

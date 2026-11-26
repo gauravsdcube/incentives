@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 (November 26, 2026)
+
+- Fix: The answer that means yes accepts the choice code or the choice text, up to 2000 characters.
+- Fix: An erased survey response is removed from the reward list when it has not been sent. A payment already sent stays in the register.
+
 ## 0.2.0 (November 26, 2026)
 
 - Enh: The Ayda API address defaults to production at https://technology.helloayda.com. A saved demo address is moved across, the cached sign-in is cleared, and demo project and participant ids are dropped so the next payment opens a production project. Payments already released stay in the register and are not sent again.

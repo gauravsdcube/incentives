@@ -1,6 +1,6 @@
 # Thiscovery Incentives
 
-**Version 0.2.0**  
+**Version 0.2.1**  
 Copyright (c) 2026 D Cube Consulting. All rights reserved.
 
 Pay survey participants and community members through Ayda. A manager authorises every payment before any money moves. Nothing is sent until that confirmation.
@@ -25,7 +25,7 @@ The password is stored encrypted. Leave it blank when saving settings to keep th
 
 1. Open the form, go to Settings → Basic, and tick **Enable incentives**. The form needs email, first name, and last name questions
 2. Incentives → **New survey reward**. Only forms with incentives turned on are listed, and a form that already has a reward is left out
-3. Map the email, first name, and last name questions. For opt-in, also map the question and the answer that means yes
+3. Map the email, first name, and last name questions. For opt-in, also map the question and the answer that means yes. That answer can be the choice code or the choice text
 4. Refresh the list, untick anyone who should not be paid, and change an amount if needed
 5. Add funds to the Ayda wallet for the reward currency. Review shows that balance, the fees, and VAT. Authorise stays blocked until the balance is shown and covers the total. Ayda then emails each person a link to claim the payment
 
@@ -46,6 +46,8 @@ Refresh copies the members at that moment. A later refresh adds people who joine
 Network managers see every payment. Space managers see payments for their space. Export writes a CSV and records who exported it, when, and how many rows. A member sees only their own payments under Account → My incentives.
 
 Deleting a user clears the name, email, and phone, and asks Ayda to forget them. Amounts and the status history stay.
+
+An erased survey response is taken off the list when it has not been sent. A payment already sent stays in the register.
 
 ## License
 
